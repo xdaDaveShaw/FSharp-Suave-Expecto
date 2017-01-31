@@ -13,14 +13,14 @@ module Model =
     
     let toJson doc = Newtonsoft.Json.JsonConvert.SerializeObject(doc)
 
-///Interface with the AWS Store
+///Simple implementation of a document store using a Dictionary.
+///Should be Mocked when testing because this is where the impure code would go.
 module DocStore =
 
     open System
     open System.Collections.Generic
     open Model
 
-    //Fake Doc Store
     let store = 
         new Dictionary<Guid, String>()
 
