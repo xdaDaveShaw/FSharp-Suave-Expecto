@@ -8,7 +8,7 @@ Debug
 *.user
 obj
 bin
-
+any
 
 ### Linux ###
 *~
