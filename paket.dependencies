@@ -1,0 +1,7 @@
+source https://www.nuget.org/api/v2
+nuget Expecto
+nuget FAKE
+nuget FSharp.Core
+nuget Suave
+nuget Suave.Testing
+nuget Newtonsoft.Json
