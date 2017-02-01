@@ -57,15 +57,13 @@ module Program =
 
     let storeDocTo (storeDocImpl: Document -> unit) text =
         let validate document =
-            match document with
-            | Some d -> d.id <> Guid.Empty
-            | _ -> false
+            if document.id <> Guid.Empty then Some document
+            else None
         
-        let document = fromJson text
-        let isValid = validate document
+        let document = text |> fromJson |> Option.bind validate
         
-        match (document, isValid) with 
-        | (Some document, true) -> storeDocImpl document |> ignore; OK ""
+        match document with 
+        | Some document -> storeDocImpl document |> ignore; OK ""
         | _ -> BAD_REQUEST "Invalid payload"
 
     let makeApp fGet fStore = 
