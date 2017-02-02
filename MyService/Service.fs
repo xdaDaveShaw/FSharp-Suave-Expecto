@@ -21,8 +21,7 @@ module DocStore =
     open System.Collections.Generic
     open Model
 
-    let store = 
-        new Dictionary<Guid, String>()
+    let store = Dictionary()
 
     let getDocById (id:Guid) = 
         match store.TryGetValue(id) with
@@ -58,25 +57,19 @@ module Program =
 
     let storeDocTo (storeDocImpl: Document -> unit) text =
         let validate document =
-            match document with
-            | Some d -> d.id <>Guid.Empty
-            | _ -> false
+            if document.id <> Guid.Empty then Some document
+            else None
         
-        let document = fromJson text
-        let isValid = validate document
+        let document = text |> fromJson |> Option.bind validate
         
-        match (document, isValid) with 
-        | (Some document as d, true) -> storeDocImpl d.Value |> ignore; OK ""
-        | (_,_) -> BAD_REQUEST "Invalid payload"
+        match document with 
+        | Some document -> storeDocImpl document |> ignore; OK ""
+        | _ -> BAD_REQUEST "Invalid payload"
 
     let makeApp fGet fStore = 
         choose
-            [ 
-              GET >=> choose
-                [ pathScan "/api/document/%s" (getDocFrom fGet) ]
-              POST >=> choose
-                [ path "/api/document" >=> request (fun req -> storeDocTo fStore (System.Text.Encoding.UTF8.GetString(req.rawForm))) ]
-            ]
+            [ GET >=> pathScan "/api/document/%s" (getDocFrom fGet)
+              POST >=> path "/api/document" >=> request (fun req -> storeDocTo fStore (System.Text.Encoding.UTF8.GetString(req.rawForm))) ]
 
     [<EntryPoint>]
     let main argv =
